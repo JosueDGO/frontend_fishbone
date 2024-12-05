@@ -59,7 +59,7 @@
     <v-row class="mt-5">
       <!-- Publicidad Izquierda (Visible solo en pantallas grandes) -->
       <v-col cols="12" sm="1" class="advertisement left-ad" v-if="!isMobile">
-        <h1>Espacio publicidad</h1>
+
       </v-col>
 
       <!-- Panel Principal -->
@@ -134,14 +134,14 @@
 
       <!-- Publicidad Derecha (Visible solo en pantallas grandes) -->
       <v-col cols="12" sm="1" class="advertisement right-ad" v-if="!isMobile">
-        <h1>Espacio publicidad</h1>
+
       </v-col>
     </v-row>
 
     <!-- Publicidad Inferior -->
-    <v-row class="advertisement mt-4">
+    <v-row class="advertisement botton-ad mt-4">
       <v-col cols="12">
-        <h1>Espacio Publicidad</h1>
+
       </v-col>
     </v-row>
   </v-container>
@@ -412,6 +412,33 @@ export default {
 
 <style scoped>
 
+.botton-ad{
+  background-image: url('../../images/Publicidad_lab3.jpg'); /* Cambia a la ruta de tu imagen o GIF */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat; 
+
+  overflow: hidden;
+}
+.right-ad{
+  background-image: url('../../images/izquierda.avif'); /* Cambia a la ruta de tu imagen o GIF */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 50em; /* Altura fija */
+  max-width: 100%; /* Asegura que no desborde horizontalmente */
+  overflow: hidden;
+}
+.left-ad {
+  background-image: url('../../images/izquierda.avif'); /* Cambia a la ruta de tu imagen o GIF */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 50em; /* Altura fija */
+  max-width: 100%; /* Asegura que no desborde horizontalmente */
+  overflow: hidden;
+}
+
 .banner-card {
   background-image: url('../../images/fondo2.jpg');
   background-size: cover;
@@ -465,7 +492,7 @@ export default {
 
 .advertisement {
   background-color: #d3d3d3;
-  opacity: 0.2;
+  /* opacity: 0.2; */
   min-height: 2em;
   text-align: center;
 }

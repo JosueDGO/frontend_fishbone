@@ -66,26 +66,33 @@
           <v-row style="margin: 0;" class="flex-container">
             <!-- Izquierda 70% -->
             <v-col :cols="isMobile ? 12 : 7" class="principal">
+              
               <v-card class="analyzer-card" style="border-radius: 4em;">
-                <v-card-title class="text-center" style="font-size:3em; font-family:Georgia, 'Times New Roman', Times, serif;">Analizador BMP</v-card-title>
+                <v-card-title class="text-center" style="font-size:3em; font-family:Georgia, 'Times New Roman', Times, serif;">Analizador ABG</v-card-title>
                 <!-- Fishbone Analyzer Diagram --> 
+                 
                 <div class="fishbone-container">
-                  <v-text-field v-model="fields.Na" label="Na(mEq/L)" outlined dense class="fishbone-input Na"></v-text-field>
-                  <v-text-field v-model="fields.Cl" label="Cl(mEq/L)" outlined dense class="fishbone-input Cl"></v-text-field>
-                  <v-text-field v-model="fields.bun" label="BUN(mg/L)" outlined dense class="fishbone-input bun"></v-text-field>
-                  <v-text-field v-model="fields.Mg" label="Mg(mg/dL)" outlined dense class="fishbone-input Mg"></v-text-field>
-                  <v-text-field v-model="fields.K" label="K(mEq/L)" outlined dense class="fishbone-input K"></v-text-field>
-                  <v-text-field v-model="fields.Bic" label="Bic(mEq/L)" outlined dense class="fishbone-input Bic"></v-text-field>
-                  <v-text-field v-model="fields.Cr" label="Cr(mg/dL)" outlined dense class="fishbone-input Cr"></v-text-field>
-                  <v-text-field v-model="fields.Glu" label="Glu(mg/dL)" outlined dense class="fishbone-input Glu"></v-text-field>
-                  <v-text-field v-model="fields.Ca" label="Ca(mg/dL)" outlined dense class="fishbone-input Ca"></v-text-field>
-                  <v-text-field v-model="fields.etoh" label="EtOH(mg/dL)" outlined dense class="fishbone-input etoh"></v-text-field>
-                  <v-text-field v-model="fields.OSM" label="OSM(mg/dL)" outlined dense class="fishbone-input osm"></v-text-field>
+                  <v-row class="mt-4" align="center" :justify="isMobile ? 'end' : 'start'">
+  <v-col cols="auto">
+    <v-btn @click="realizarcalculo" class="fishbone-input btn">
+      Realizar Cálculo
+    </v-btn>
+  </v-col>
+</v-row>
 
+                  <v-text-field v-model="fields.ph" label="Ph" outlined dense class="fishbone-input ph"></v-text-field>
+                  <v-text-field v-model="fields.paco2" label="PaCO2" outlined dense class="fishbone-input paco2"></v-text-field>
+                  <v-text-field v-model="fields.alb" label="Alb" outlined dense class="fishbone-input alb"></v-text-field>
+                  <v-text-field v-model="fields.na" label="Na(mEq/L)" outlined dense class="fishbone-input na"></v-text-field>
+                  <v-text-field v-model="fields.cl" label="Cl(mEq/L)" outlined dense class="fishbone-input cl"></v-text-field>
+                  <v-text-field v-model="fields.hco3" label="HCO3(mEq/L)" outlined dense class="fishbone-input hco3"></v-text-field>
 
                 </div>
               </v-card>
+              
             </v-col>
+
+
   
             <!-- Derecha 30% -->
             <v-col :cols="isMobile ? 12 : 5" class="right-panel">
@@ -159,19 +166,14 @@
         selectedLabel: "", // Etiqueta seleccionada
         bannerData: [], // Información detallada del banner
         showPatientInfo: false,
+        aniongap:0,
         fields: {
-          Na: '',
-          Cl: '',
-          bun: '',
-          Mg: '',
-          K: '',
-          Bic: '',
-          Cr: '',
-          Glu: '',
-          Ca: '',
-          OH:'',
-          OSM:'',
-          etoh:''
+          ph: '',
+          paco2: '',
+          alb: '',
+          na: '',
+          cl: '',
+          hco3: ''
         },
         selectedGender: null,
         age: null,
@@ -184,17 +186,17 @@
         diagnosisPlt: '',
         diagnosisPltDesc: '',
         additionalData: [
+
+          { label: 'Anion Gap', value: '' },
+          { label: 'Diagnóstico Ph', value: '' },
+          { label: 'Diagnóstico PaCO2', value: '' },
+          { label: 'Diagnóstico Alb', value: '' },
           { label: 'Diagnóstico Na', value: '' },
           { label: 'Diagnóstico Cl', value: '' },
-          { label: 'Diagnóstico BUN', value: '' },
-          { label: 'Diagnóstico Mg', value: '' },
-          { label: 'Diagnóstico K', value: '' },
-          { label: 'Diagnóstico Bic', value: '' },
-          { label: 'Diagnóstico Cr', value: '' },
-          { label: 'Diagnóstico Glu', value: '' },
-          { label: 'Diagnóstico Ca', value: '' },
-          { label: 'Diagnóstico Combinado base osmolaridad', value: '' },
-          { label: 'Equilibro acido-base en sangre', value: '' }
+          { label: 'Diagnóstico HCO3', value: '' },
+          { label: 'Diagnostico Primario', value: '' },
+          { label: 'Diagnostico Secundario', value: '' },
+          
         ],
         // Variables necesarias para la tasa de infusión
         genderVal: null,
@@ -204,7 +206,10 @@
         ivk: null,
         naChange: null,
         infusionRate: null, // Para guardar la tasa de infusión calculada
-        individualDiagnoses: [] // Nuevo arreglo para guardar diagnósticos individuales
+        individualDiagnoses: [], // Nuevo arreglo para guardar diagnósticos individuales
+
+        diagnostico1:'',
+        diagnostico2:''
       };
     },
     computed: {
@@ -215,39 +220,26 @@
   
       // Lógica para calcular diagnósticos según los valores
       diagnosis() {
-          const NaVal = this.convertToNumber(this.fields.Na);
-          const ClVal = this.convertToNumber(this.fields.Cl);
-          const bunVal = this.convertToNumber(this.fields.bun);
-          const MgVal = this.convertToNumber(this.fields.Mg);
-          const KVal = this.convertToNumber(this.fields.K);
-          const BicVal = this.convertToNumber(this.fields.Bic);
-          const CrVal = this.convertToNumber(this.fields.Cr);
-          const GluVal = this.convertToNumber(this.fields.Glu);
-          const CaVal = this.convertToNumber(this.fields.Ca);
+        const ph = this.convertToNumber(this.fields.ph);
+        const paco2 = this.convertToNumber(this.fields.paco2);
+        const alb = this.convertToNumber(this.fields.alb);
+        const na = this.convertToNumber(this.fields.na);
+        const cl = this.convertToNumber(this.fields.cl);
+        const hco3 = this.convertToNumber(this.fields.hco3);
 
-  
-          this.additionalData[0].value = NaVal  ? this.evaluateNa(NaVal) : '';
-          this.additionalData[1].value = ClVal  ? this.evaluateCl(ClVal) : '';
-          this.additionalData[2].value = bunVal  ? this.evaluatebun(bunVal) : '';
-          this.additionalData[3].value = MgVal  ? this.evaluateMg(MgVal) : '';
-          this.additionalData[4].value = KVal  ? this.evaluateK(KVal) : '';
-          this.additionalData[5].value = BicVal  ? this.evaluateBic(BicVal) : '';
-          this.additionalData[6].value = CrVal  ? this.evaluateCr(CrVal) : '';
-          this.additionalData[7].value = GluVal   ? this.evaluateGlu(GluVal) : '';
-          this.additionalData[8].value = CaVal   ? this.evaluateCa(CaVal) : '';
-          this.additionalData[9].value = this.addevaluated();
-          this.additionalData[10].value = this.addevaluated2();
+
+        this.additionalData[0].value = this.calcularAnionGap();
+        this.additionalData[1].value = ph  ? this.evaluateph(ph) : '';
+        this.additionalData[2].value = paco2  ? this.evaluatepaco2(paco2) : '';
+        this.additionalData[3].value = alb  ? this.evaluatealb(alb) : '';
+        this.additionalData[4].value = na  ? this.evaluatena(na) : '';
+        this.additionalData[5].value = cl  ? this.evaluatecl(cl) : '';
+        this.additionalData[6].value = hco3  ? this.evaluatehco3(hco3) : '';
+          
       }
   
     },
     methods: {
-        
-        async updateCombinedDiagnoses(){
-            const combinedDiagnosis1 = await this.addevaluated();
-            const combinedDiagnosis2 = await this.addevaluated2();
-            this.additionalData[9].value = combinedDiagnosis1;
-            this.additionalData[10].value = combinedDiagnosis2;
-        },
 
       openBanner(label, value) {
       
@@ -299,86 +291,167 @@
   
       fieldLabel(field) {
         const labels = {
-          Na: 'Na',
-          Cl: 'Cl',
-          bun: 'bun',
-          Mg: 'Mg',
-          K: 'K',
-          Bic: 'Bic',
-          Cr: 'Cr',
-          Glu: 'Glu',
-          Ca: 'Ca'
+          ph: 'Ph',
+          paco2: 'PaCO2',
+          alb: 'Alb',
+          na: 'Na',
+          cl: 'Cl',
+          hco3: 'HCO3'
         };
         return labels[field] || field;
       },
       
-      calcularOsmolaridad(){
-        const NaVal = this.convertToNumber(this.fields.Na);
-        const bunVal = this.convertToNumber(this.fields.bun);
-        const GluVal = this.convertToNumber(this.fields.Glu);
-        const etoh = this.convertToNumber(this.fields.etoh);
+      calcularAnionGap() {
+        // Convertir los valores de los campos a números
+        const ph = this.convertToNumber(this.fields.ph);
+        const paco2 = this.convertToNumber(this.fields.paco2);
+        const alb = this.convertToNumber(this.fields.alb);
+        const na = this.convertToNumber(this.fields.na);
+        const cl = this.convertToNumber(this.fields.cl);
+        const hco3 = this.convertToNumber(this.fields.hco3);
 
-        let result = (2 * NaVal) + (GluVal / 18 )+ (bunVal / 2.8);
+        // Inicializar el anion gap
+        let aniongap = 0;
 
-        console.log("llamaron osmolaridad")
 
-        if (etoh) {
-            result += etoh / 4.6; // Agregar la contribución de etoh si existe
+        // Calcular el anion gap básico
+        aniongap = na - cl - hco3;
+
+        // Ajustar el anion gap si la albumina es válida y menor que 4
+        if (!isNaN(alb) && alb < 3.9) {
+            console.log("Ajustando anion gap por albumina");
+            aniongap += 2.4 * (alb-4);
         }
 
-        console.log("Resultado calculado de OSM :", result);
-        this.fields.OSM = result
-        return result; // Retorna el resultado final
-
-
-
+        console.log("este es aniongap", aniongap)
+        return aniongap;
       },
-        calcularAnionGap(){
-            const NaVal = this.convertToNumber(this.fields.Na);
-            const ClVal = this.convertToNumber(this.fields.Cl);
-            const BicVal = this.convertToNumber(this.fields.Bic);
-            console.log("llamaron a anion gap")
-                
-            // Verificamos que todos los valores sean números válidos
-            if (isNaN(NaVal) || isNaN(ClVal) || isNaN(BicVal)) {
-                console.warn("Uno o más valores no son números válidos.");
-                return null; // Devuelve null si los valores son inválidos
+
+      async addevaluated() {
+
+        const ph = this.convertToNumber(this.fields.ph);
+        const paco2 = this.convertToNumber(this.fields.paco2);
+        const alb = this.convertToNumber(this.fields.alb);
+        const na = this.convertToNumber(this.fields.na);
+        const cl = this.convertToNumber(this.fields.cl);
+        const hco3 = this.convertToNumber(this.fields.hco3);
+
+        const aniongap = this.calcularAnionGap();
+       
+
+        let mensaje = ''
+        let mensaje2 = ''
+        let exphco3 = 0
+        let expco2 = 0
+        let deltadelta = 0
+
+        
+        if (aniongap>14){
+
+          console.log("anion gap es mayor a 14")
+
+
+          mensaje ='Anion Gap Metabolic Acidosis'
+          deltadelta = (aniongap-12)+(hco3-24)
+
+          if(deltadelta >=3){
+            mensaje2 = 'Metabolic Alkalosis'
+          }else if(deltadelta <3 || deltadelta >-3){
+            mensaje2 = ''
+          }else if(deltadelta <=-3){
+            mensaje2 = 'Primary Metabolic Acidosis'
+          }
+
+          expco2 = (1.5*hco3)+8
+
+
+        } 
+        else if(aniongap<14){
+          console.log("anion gap es menor a 14")
+
+          if(hco3 >= 22 && hco3 <= 26){
+            console.log("entre a esto entre 22 y 26 ")
+            if(paco2>=43){
+              console.log("pago es mayor a 43")
+              if(ph<=7.27) 
+              {
+                mensaje ='Acute Respiratory Acidosis' 
+                exphco3 = 24 + (paco2 -40 / 10)
+              } 
+              else if(ph>=7.28)
+              {
+                mensaje ='Chromic Respiratory Acidosis' 
+                exphco3 = 24 + ((paco2 -40 / 10)*3)
+              } 
+              
+            }else if(paco2>38 || paco2<42){
+              mensaje = ''
+            }else if(paco2 <=37){
+              if(ph<=7.51) 
+              {
+                mensaje ='Respiratory Alkalosis' 
+                exphco3 = 24 - ((paco2 -4 / 10)*5)
+              } 
+              else if(ph>=7.52)
+              {
+                mensaje ='Chromic Respiratory Alkalosis' 
+                exphco3 = 24 - ((paco2 -4 / 10)*2)
+              } 
             }
 
-            // Calculamos el anion gap
-            const result = NaVal - ClVal - BicVal;
-            console.log("aniongap es" + result)
-            this.aniongap = result;
+            let deltahco3=  hco3-exphco3 
 
-            return result; 
-        },
+            if(deltahco3>=3){
+              mensaje2 = 'Metabolic Alkalosis'
+            }else if (deltahco3 >= -2 && deltahco3 <= 2){
+              mensaje2 = ''
+            }else if(deltahco3<= -3){
+              mensaje2='Metabolic Acidosis'
+            }
 
-     async addevaluated() {
-        const NaVal = this.convertToNumber(this.fields.Na);
+          }else if(hco3 >= 27){
+            console.log("hco3 es mayor o igual 27")
+            expco2 =(0.7*(hco3-24))+40
 
-        const osmolarity = await this.calcularOsmolaridad();
+            let deltapco2 = paco2 -expco2 
+            if(deltapco2>=3){
+              mensaje = 'Respiratory Acidosis'
+            }else if(deltapco2>-2 || deltapco2<2 ){
+              mensaje = ''
+            }else if(deltapco2<=-3){
+              mensaje ='Respiratory Alkalosis'
+            }
 
-        if (NaVal < 134 && NaVal > osmolarity) return 'Hypertonic Hyponatremia';
-        else if (NaVal < 134 && NaVal == osmolarity ) return 'Normotonic Hyponatremia';
-        else if (NaVal < 134 && NaVal < osmolarity) return 'Hypotonic Hyponatremia';
-        return ''; // Devuelve un valor vacío si no se cumple ninguna condición
+          }else if(hco3<=21){
+            console.log("hco3 es menor a 21")
+            expco2 =(1.5*hco3)+8
+
+            let deltapco2 = paco2 -expco2 
+            console.log("esto es deltapaco2" ,deltapco2)
+            
+            if(deltapco2>=3){
+              mensaje = 'Respiratory Acidosis'
+            }else if(deltapco2>-2 || deltapco2<2 ){
+              mensaje = ''
+            }else if(deltapco2<=-3){
+              mensaje ='Respiratory Alkalosis'
+            }
+          }
+
+        }
+
+        this.additionalData[7].value = mensaje || '';
+        this.additionalData[8].value = mensaje2 || '';
+
+        return { mensaje, mensaje2 };
       },
-  
-      async addevaluated2() {
-        
-        const osmolarity = await this.calcularOsmolaridad();
+      
+      realizarcalculo() {
+        this.addevaluated();
 
-        const NaVal = this.convertToNumber(this.fields.Na);
-        const ClVal = this.convertToNumber(this.fields.Cl);
-        const BicVal = this.convertToNumber(this.fields.Bic);
-        const aniongap = await this.calcularAnionGap();
-
-        /* aniongap 10 low 26 high */
-        if (BicVal <  21 && aniongap < 25 && ClVal > 100  ) return 'Hyperchloremic acidosis';
-        else if (aniongap > 26 && NaVal == osmolarity ) return 'Metabolic acidosis';
-        return ''; // Devuelve un valor vacío si no se cumple ninguna condición
       },
-  
+
+
       convertToNumber(value) {
         if (typeof value === 'string' && value.endsWith('K')) {
           return parseInt(value.slice(0, -1)) * 1000;
@@ -393,51 +466,38 @@
   
       // Métodos de evaluación para cada campo
   
-      evaluateNa(NaVal) {
-        if (NaVal < 134) return 'Hyponatremia';
-        else if (NaVal > 151) return 'Hypernatremia';
+      evaluateph(phval) {
+        if (phval < 7.42) return 'Low';
+        else if (phval > 7.37) return 'High';
         return 'Normal';
       },
-      evaluateK(KVal) {
-        if (KVal < 3.4) return 'Hypokalemia';
-        else if (KVal > 5.4) return 'HyperKalmia';
+      evaluatepaco2(paco2) {
+        if (paco2 >= 42) return 'High';
+        else if (paco2 <= 38) return 'Low';
         return 'Normal';
       },
-      evaluateCl(ClVal) {
-        if (ClVal < 97) return 'HypoChloremia';
-        else if (ClVal > 100) return 'HyperChloremia';
+      evaluatealb(albVal) {
+        if (albVal >= 5.2) return 'High';
+        else if (albVal <= 3.7) return 'High';
         return 'Normal';
       },
-      evaluateBic(BicVal) {
-        if (BicVal < 21) return 'Acidoses';
-        else if (BicVal > 27) return 'Metabolic Alkalosis';
+      evaluatena(naVal) {
+        if (naVal >= 146) return 'High';
+        else if (naVal <= 135) return 'Low';
         return 'Normal';
       },
-      evaluateCr(CrVal) {
-        if (CrVal > 1.45) return 'Acute vs Chronic Kidney Injury';
+      evaluatecl(clVal) {
+        if (clVal >= 107) return 'High';
+        else if (clVal <= 97) return 'Low';
         return 'Normal';
       },
-      evaluatebun(BunVal) {
-        if (BunVal > 27) return 'Uremia';
+      evaluatehco3(hco3Val) {
+        if (hco3Val >= 26) return 'High';
+        else if (hco3Val <= 22) return 'Low';
+
         return 'Normal';
       },
-      evaluateCa(CaVal) {
-        if (CaVal < 8.4) return 'Hypocalcemia';
-        else if (CaVal > 10.55) return 'Hypercalcemia';
-        return 'Normal';
-      },
-      evaluateMg(MgVal) {
-        if (MgVal < 1.8) return 'Hypomagensemia';
-        else if (MgVal > 2.5) return 'Hypermagnesemia';
-        return 'Normal';
-      },
-      evaluateGlu(GluVal) {
-        if (GluVal < 70) return 'Hypoglicemia';
-        else if (GluVal > 100) return 'Glucose Intolerance';
-        else if (GluVal > 120) return 'Diabetes';
-        else if (GluVal > 210) return 'Uncontroled Diabetes';
-        return 'Normal';
-      },
+
       // Cálculo de la tasa de infusión
       calculateInfusionRate() {
         if (this.ageVal && this.weightVal && this.genderVal) {
@@ -456,7 +516,6 @@
           // Fórmula de ejemplo para la tasa de infusión
           const infusionRate = (1000 * naChange * (waterFraction * this.weightVal)) / (ivna + ivk - naValTemp);
           this.infusionRate = Math.round(infusionRate * 100) / 100;
-          console.log('Tasa de Infusión:', this.infusionRate);
         } else {
           this.teaseBasicInfo();
         }
@@ -469,13 +528,14 @@
   
     watch: {
       fields: {
-        handler() {
-          this.diagnosis; // Trigger diagnosis recalculation whenever fields change
-          this.updateCombinedDiagnoses();
+        handler: async function () {
+          this.diagnosis
+
         },
         deep: true
       }
     },
+
   
     mounted() {
       // Asignar valores desde Vuex a las variables del componente
@@ -493,7 +553,7 @@
   
 <style scoped>
   
-  .botton-ad{
+.botton-ad{
   background-image: url('../../images/bajamicro.jpg'); /* Cambia a la ruta de tu imagen o GIF */
   background-size: cover;
   background-position: center;
@@ -556,7 +616,7 @@
   
   /* Fondo completo para la página */
   .cbc-analyzer-container {
-    background-image: url('../../images/bmp2.jpg');
+    background-image: url('../../images/abg.jpg');
     background-size: cover;  /* Hace que la imagen de fondo cubra todo el área */
     background-position: center; /* Centra la imagen */
     min-height: 100vh; /* Hace que la altura mínima sea el 100% de la pantalla */
@@ -596,9 +656,9 @@
     justify-content: center;
     align-items: center;
     /* background-color: #00aaff; */
-    background-image: url('../../images/analyzer_bmp.png');
+    background-image: url('../../images/abg.png');
     background-size: 90%;
-    background-position: center 100%; 
+    background-position: center 50%; 
     background-repeat: no-repeat;
     border-radius: 1em;
   }
@@ -638,7 +698,7 @@
     position: relative;
     width: 100%;
     height: 400px;  /* Mantén un tamaño adecuado o ajusta */
-    background-color: #20a55c; /* Opcional, para que puedas ver el área de la imagen */
+    background-color: #c5972d; /* Opcional, para que puedas ver el área de la imagen */
   }
   
   /* Estilo de la imagen */
@@ -660,17 +720,28 @@
   @media( min-width:900px){
   
     /* Posicionamiento de cada cuadro de entrada en el diagrama */
-    .Na { top: 25%; left: 22%; }
-    .Cl { top: 25%; left: 37%; }
-    .bun { top: 25%; left: 52%; }
-    .Mg { top: 10%; right:14%; }
-    .K { top: 48%; Left: 22%;  }
-    .Bic { top: 48%; left: 37%;}
-    .Cr { top: 48%; left: 52%; }
-    .Glu { bottom: 51%; right: 20%;}
-    .Ca { top: 65%; right:14%;}
-    .etoh {top: 80%; right:80%;}
-    .osm {top: 80%; right:65%;}
+    .ph { top: 33%; left: 20%; }
+    .paco2{ top: 33%; left: 47%; }
+    .alb { top: 33%; left: 75%; }
+    .na { top: 53%; right:75%; }
+    .cl { top: 53%; Left: 40%;  }
+    .hco3 { top: 53%; left: 70%;}
+    .btn {
+      top: 1%;
+      left: 75%;
+      background-color: #FFA500; /* Color naranja suave */
+      border-radius: 20px; /* Redondeo de las esquinas */
+      color: white; /* Color de texto blanco */
+      padding: 10px 20px; /* Espaciado interno para hacer el botón más grande */
+      border: none; /* Elimina el borde predeterminado */
+      cursor: pointer; /* Cambia el cursor a mano al pasar sobre el botón */
+      transition: background-color 0.3s ease; /* Transición suave en el cambio de color */
+    }
+
+  .btn:hover {
+    background-color: #FF7F32; /* Un naranja más oscuro para el hover */
+  }
+    
 
 
   

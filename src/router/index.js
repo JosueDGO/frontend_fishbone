@@ -6,6 +6,7 @@ import ForgotPassword from '@/views/ForgotPassword.vue';
 import Dashboard from '@/views/Dashboard.vue';
 import CbcAnalyzer from '@/views/CbcAnalyzer.vue';
 import BmpAnalyzer from '@/views/BmpAnalyzer.vue';
+import abgAnalyzer from '@/views/abgAnalyzer.vue';
 
 const routes = [
   {
@@ -43,6 +44,11 @@ const routes = [
     path: '/BmpAnalyzer',
     name: 'BmpAnalyzer',
     component: BmpAnalyzer,// Añadimos esta meta para indicar que esta ruta requiere autenticación
+  },
+  { 
+    path: '/abgAnalyzer',
+    name: 'abgAnalyzer',
+    component: abgAnalyzer,// Añadimos esta meta para indicar que esta ruta requiere autenticación
   }
 ]
 
