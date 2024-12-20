@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Evitar que las rutas de la API se redirijan a index.html
+    RewriteRule ^api/ - [L]
+    
+    # Redirigir todas las demás solicitudes a index.html para Vue Router
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.html [QSA,L]
+</IfModule>
