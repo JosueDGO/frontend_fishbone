@@ -18,11 +18,20 @@
       <!-- Datos dinámicos (Edad, Género, Peso, Estatura, Etnia) -->
       <template v-else>
         <v-spacer></v-spacer>
+        <v-btn @click="$router.push({ name: 'Dashboard' })" color="primary" class="mr-3">
+          <v-icon left>mdi-arrow-left</v-icon>  <!-- Puedes usar otro icono si lo prefieres -->
+          Regresar
+        </v-btn>
+
         <v-select v-model="selectedGender" :items="genders" label="Género" outlined dense :disabled="true" class="mr-3"></v-select>
         <v-text-field v-model="age" label="Edad" outlined dense :disabled="true" class="mr-3"></v-text-field>
         <v-text-field v-model="weight" label="Peso (kgs)" outlined dense :disabled="true" class="mr-3"></v-text-field>
         <v-text-field v-model="height" label="Estatura (cm)" outlined dense :disabled="true" class="mr-3"></v-text-field>
         <v-select v-model="selectedEthnicity" :items="ethnicities" label="Etnia" outlined dense :disabled="true"></v-select>
+        <v-btn :href="'/'" color="primary" class="mr-3">
+          <v-icon left>mdi-logout</v-icon>
+          Salir
+        </v-btn>
       </template>
     </v-app-bar>
 
@@ -79,6 +88,10 @@
                 <v-text-field v-model="fields.mch" label="MCH" outlined dense class="fishbone-input mch"></v-text-field>
                 <v-text-field v-model="fields.plt" label="Plt" outlined dense class="fishbone-input plt"></v-text-field>
               </div>
+              <v-btn @click="clearFields" color="blue lighten-4" class="mt-4" block>
+                Limpiar Campos
+              </v-btn>
+
             </v-card>
           </v-col>
 
@@ -144,6 +157,8 @@
 
       </v-col>
     </v-row>
+
+
   </v-container>
 </template>
 
@@ -225,7 +240,18 @@ export default {
 
   },
   methods: {
-
+    
+    clearFields() {
+      // Limpiar los campos de los datos CBC
+      this.fields.wbc = '';
+      this.fields.neut = '';
+      this.fields.lym = '';
+      this.fields.hb = '';
+      this.fields.mcv = '';
+      this.fields.mch = '';
+      this.fields.plt = '';
+      
+    },
     openBanner(label, value) {
     
       /* label es el titulo y value es el nombre de la enf */

@@ -18,11 +18,19 @@
         <!-- Datos dinámicos (Edad, Género, Peso, Estatura, Etnia) -->
         <template v-else>
           <v-spacer></v-spacer>
+          <v-btn @click="$router.push({ name: 'Dashboard' })" color="primary" class="mr-3">
+          <v-icon left>mdi-arrow-left</v-icon>  <!-- Puedes usar otro icono si lo prefieres -->
+          Regresar
+          </v-btn>
           <v-select v-model="selectedGender" :items="genders" label="Género" outlined dense :disabled="true" class="mr-3"></v-select>
           <v-text-field v-model="age" label="Edad" outlined dense :disabled="true" class="mr-3"></v-text-field>
           <v-text-field v-model="weight" label="Peso (kgs)" outlined dense :disabled="true" class="mr-3"></v-text-field>
           <v-text-field v-model="height" label="Estatura (cm)" outlined dense :disabled="true" class="mr-3"></v-text-field>
           <v-select v-model="selectedEthnicity" :items="ethnicities" label="Etnia" outlined dense :disabled="true"></v-select>
+          <v-btn :href="'/'" color="primary" class="mr-3">
+          <v-icon left>mdi-logout</v-icon>
+          Salir
+        </v-btn>
         </template>
       </v-app-bar>
   
@@ -84,6 +92,9 @@
 
 
                 </div>
+                <v-btn @click="clearFields" color="green darken-3" class="mt-4" block>
+                Limpiar Campos
+              </v-btn>
               </v-card>
             </v-col>
   
@@ -241,7 +252,23 @@
   
     },
     methods: {
-        
+      
+      clearFields() {
+      // Limpiar los campos de los datos CBC
+      this.fields.Na = '';
+      this.fields.Cl = '';
+      this.fields.bun = '';
+      this.fields.Mg = '';
+      this.fields.K = '';
+      this.fields.Bic = '';
+      this.fields.Cr = '';
+      this.fields.Glu = '';
+      this.fields.Ca = '';
+      this.fields.etoh = '';
+      this.fields.OSM = '';
+      
+    },
+
         async updateCombinedDiagnoses(){
             const combinedDiagnosis1 = await this.addevaluated();
             const combinedDiagnosis2 = await this.addevaluated2();

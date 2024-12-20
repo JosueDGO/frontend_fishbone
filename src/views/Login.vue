@@ -44,7 +44,7 @@
               CREAR UNA CUENTA
             </v-btn>
   
-            <div class="text-center mb-4">or</div>
+            <div class="text-center mb-4"></div>
   
 <!--             <v-btn color="blue" block class="button-same-size mb-2" outlined @click="loginWithGoogle">
               <v-icon left>mdi-google</v-icon> Login with Google
@@ -61,6 +61,8 @@
   
   <script>
   import axios from 'axios';
+  const apiUrl = process.env.VUE_APP_API_URL;
+
   import { mapActions } from 'vuex';
   
   export default {
@@ -79,7 +81,7 @@
         this.errorMessage = ''; // Resetear el mensaje de error en cada intento
   
         try {
-          const response = await axios.post('http://localhost:3000/api/users/authenticate', {
+          const response = await axios.post(`${apiUrl}/api/users/authenticate`, {
             correo: this.email,
             passuser: this.password
           });

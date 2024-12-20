@@ -33,6 +33,8 @@
 
 <script>
 import axios from 'axios';
+const apiUrl = process.env.VUE_APP_API_URL;
+
 
 export default {
   data() {
@@ -50,7 +52,7 @@ export default {
       this.successMessage = '';
 
       try {
-        const response = await axios.post('http://localhost:3000/api/users/forgot-password', {
+        const response = await axios.post(`${apiUrl}/api/users/forgot-password`, {
           correo: this.email
         });
 

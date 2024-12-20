@@ -57,6 +57,8 @@
 <script>
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+const apiUrl = process.env.VUE_APP_API_URL;
+
 
 export default {
   data() {
@@ -95,7 +97,7 @@ export default {
       this.successMessage = '';
 
       try {
-        const response = await axios.post('http://localhost:3000/api/users/reset-password', {
+        const response = await axios.post(`${apiUrl}/api/users/reset-password`, {
           token: this.token,
           newPassword: this.newPassword
         });

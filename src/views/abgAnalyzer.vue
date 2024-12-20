@@ -18,11 +18,19 @@
         <!-- Datos dinámicos (Edad, Género, Peso, Estatura, Etnia) -->
         <template v-else>
           <v-spacer></v-spacer>
+          <v-btn @click="$router.push({ name: 'Dashboard' })" color="primary" class="mr-3">
+          <v-icon left>mdi-arrow-left</v-icon>  <!-- Puedes usar otro icono si lo prefieres -->
+          Regresar
+          </v-btn>
           <v-select v-model="selectedGender" :items="genders" label="Género" outlined dense :disabled="true" class="mr-3"></v-select>
           <v-text-field v-model="age" label="Edad" outlined dense :disabled="true" class="mr-3"></v-text-field>
           <v-text-field v-model="weight" label="Peso (kgs)" outlined dense :disabled="true" class="mr-3"></v-text-field>
           <v-text-field v-model="height" label="Estatura (cm)" outlined dense :disabled="true" class="mr-3"></v-text-field>
           <v-select v-model="selectedEthnicity" :items="ethnicities" label="Etnia" outlined dense :disabled="true"></v-select>
+          <v-btn :href="'/'" color="primary" class="mr-3">
+          <v-icon left>mdi-logout</v-icon>
+          Salir
+        </v-btn>
         </template>
       </v-app-bar>
   
@@ -88,6 +96,10 @@
                   <v-text-field v-model="fields.hco3" label="HCO3(mEq/L)" outlined dense class="fishbone-input hco3"></v-text-field>
 
                 </div>
+                <v-btn @click="clearFields" color="orange" class="mt-4" block>
+                  Limpiar Campos
+                </v-btn>
+
               </v-card>
               
             </v-col>
@@ -241,6 +253,32 @@
     },
     methods: {
 
+      clearFields() {
+        // Limpiar los campos de texto
+        this.fields.ph = '';
+        this.fields.paco2 = '';
+        this.fields.alb = '';
+        this.fields.na = '';
+        this.fields.cl = '';
+        this.fields.hco3 = '';
+
+        // Limpiar los datos dentro de additionalData
+        this.additionalData.forEach(item => {
+          if (item.label !== 'Diagnostico Primario' && item.label !== 'Diagnostico Secundario') {
+            item.value = ''; // Limpiar solo los valores de los otros campos
+          }
+        });
+
+        // Hacer desaparecer "Diagnóstico Primario" y "Diagnóstico Secundario"
+        const primary = this.additionalData.find(item => item.label === 'Diagnostico Primario');
+        const secondary = this.additionalData.find(item => item.label === 'Diagnostico Secundario');
+        if (primary) {
+          primary.value = '';
+        }
+        if (secondary) {
+          secondary.value = '';
+        }
+      },
       openBanner(label, value) {
       
         /* label es el titulo y value es el nombre de la enf */
