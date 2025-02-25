@@ -171,7 +171,71 @@
   
   <!-- un cambio mas arriba -->
 <script>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
+
   export default {
+
+    setup(){
+      const parametros = ref({});
+      const cargarParametros = async () => {
+        try{
+          const response = await axios.get('http://localhost:3000/api/parameters');
+          const data = response.data;
+          const parametrosMap = {
+            ph: '',
+            paco2: '',
+            alb: '',
+            na: '',
+            cl: '',
+            hco3: ''
+          };
+
+          data.forEach((param) => {
+      switch (param.parametro.toLowerCase()) {
+          case 'ph':
+            parametrosMap.ph = param.valorMostrado;
+            break;
+          case 'paco2':
+            parametrosMap.paco2 = param.valorMostrado;
+            break;
+          case 'alb':
+            parametrosMap.alb = param.valorMostrado;
+            break;
+          case 'na':
+            parametrosMap.na = param.valorMostrado;
+            break;
+          case 'cl':
+            parametrosMap.cl = param.valorMostrado;
+            break;
+          case 'bic': // "hco3" no está en los datos, pero "Bic" es el bicarbonato (HCO3)
+            parametrosMap.hco3 = param.valorMostrado;
+            break;
+            }
+        });
+          parametros.value = parametrosMap;
+
+          console.log('Parámetros obtenidos:', parametros.value); 
+
+          localStorage.setItem('parametros', JSON.stringify(parametros.value));
+        }catch{
+          console.error('Error al cargar parámetros:', error);
+          console.log('Error al cargar parámetros:', error);
+        }
+      };
+      onMounted(() =>{
+        const savedParams = localStorage.getItem('parametros');
+        if(savedParams){
+          parametros.value = JSON.parse(savedParams);
+        }
+        
+        cargarParametros();
+      });
+    
+      return { parametros };
+    },
+
     data() {
       return {
         showBanner: false, // Estado del banner
@@ -582,7 +646,8 @@
       this.weight = this.$store.state.user.weight;
       this.height = this.$store.state.user.height;
       this.selectedEthnicity = this.$store.state.user.ethnicity;
-  
+      
+      const savedParams = localStorage.getItem('parametros')
     }
     
   };

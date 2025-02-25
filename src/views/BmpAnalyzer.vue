@@ -94,7 +94,7 @@
                 </div>
                 <v-btn @click="clearFields" color="green darken-3" class="mt-4" block>
                 Limpiar Campos
-              </v-btn>
+                </v-btn>
               </v-card>
             </v-col>
   
